@@ -1,0 +1,113 @@
+---
+title: "R Markdown 3"
+author: "Victor C. Ezeh"
+date: "2023-04-25"
+output: html_document
+---
+```{r}
+#Load in the required packages
+library(tidyverse)
+library(readr)
+library(dplyr)
+```
+
+```{r}
+#Method 2 - Omit all the NAs
+Omitted_Working_Data <- Working_Data %>%
+  na.omit()
+
+View(Omitted_Working_Data)
+```
+
+```{r}
+#From the subsetted data, find the best time of the month and week to travel
+#Find the best month of the year to travel
+#Let us reconfigure the data set first. Changing 1 to January, 2 to February and so on
+
+Omitted_WD <- Omitted_Working_Data %>%
+  mutate(MM = case_when(Month == 1 ~ "Jan",
+                        Month == 2 ~ "Feb",
+                        Month == 3 ~ "Mar",
+                        Month == 4 ~ "Apr",
+                        Month == 5 ~ "May",
+                        Month == 6 ~ "Jun",
+                        Month == 7 ~ "Jul",
+                        Month == 8 ~ "Aug",
+                        Month == 9 ~ "Sep",
+                        Month == 10 ~ "Oct",
+                        Month == 11 ~ "Nov",
+                        Month == 12 ~ "Dec",)) %>%
+  
+  mutate(Week_Day = case_when (DayOfWeek == 1 ~ "Sun",
+                               DayOfWeek == 2 ~ "Mon",
+                               DayOfWeek == 3 ~ "Tue",
+                               DayOfWeek == 4 ~ "Wed",
+                               DayOfWeek == 5 ~ "Thu",
+                               DayOfWeek == 6 ~ "Fri",
+                               DayOfWeek == 7 ~ "Sat",)) %>%
+  
+  mutate(Time_Day = case_when (DepTime < 1200 ~ "AM",
+                                     DepTime > 1200 ~ "PM",))
+
+```
+
+```{r}
+#Find the mean of all delays
+
+Delays <- Omitted_WD %>%
+  mutate(average_delay_time = (ArrDelay + DepDelay) / 2)
+
+View(Delays)
+```
+
+```{r}
+#The best time of the month to travel
+
+Best_Time_Month <- Delays %>%
+  group_by(MM) %>%
+  summarise(average_delay_time = sum(average_delay_time), prop_of_delay = n()/nrow(Delays))
+
+Best_Time_Month
+
+View(Best_Time_Month)
+```
+```{r}
+#The best time of the month to travel is September
+
+Best_Time_Month[which.min(Best_Time_Month$average_delay_time), ]
+```
+```{r}
+#The best time of the week to travel
+
+Best_Time_Week <- Delays %>%
+  group_by(Week_Day) %>%
+  summarise(average_delay_time = sum(average_delay_time), prop_of_delay = n()/nrow(Delays))
+
+Best_Time_Week
+
+View(Best_Time_Week)
+```
+```{r}
+#The best time of the week to travel is Friday
+
+Best_Time_Week[which.min(Best_Time_Week$average_delay_time), ]
+```
+```{r}
+#The best time of the day to travel
+
+Best_Time_Day <- Delays %>%
+  group_by(Time_Day) %>%
+  summarise(average_delay_time = sum(average_delay_time), prop_of_delay = n()/nrow(Delays))
+
+Best_Time_Day
+
+View(Best_Time_Day)
+```
+```{r}
+#The best time of the day to travel is AM
+
+Best_Time_Day [which.min(Best_Time_Day$average_delay_time), ]
+```
+
+
+

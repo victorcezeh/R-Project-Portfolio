@@ -1,0 +1,46 @@
+---
+title: "R Markdown 2"
+author: "Victor C. Ezeh"
+date: "2023-04-21"
+output: html_document
+---
+
+```{r}
+#Number of rows & Coumns
+nrow(Working_Data)
+
+ncol(Working_Data)
+```
+```{r}
+#We use NAs to check out for empty rows and columns. In some datasets, it could be
+#referred to as NANS (Not a number) #1 signifies Rows and 2 signifies columns
+```
+
+
+```{r}
+#Apply Function to find columns with empty cells
+Working_Data_na <- colnames(Working_Data) [apply (Working_Data, 2, anyNA)]
+```
+
+
+```{r}
+#Find Mean values in these empty columns
+Missing_na <- apply(Working_Data[ , colnames(Working_Data) %in% Working_Data_na],
+2, mean, na.rm = TRUE)
+
+Missing_na
+```
+```{r}
+#Replacing missing cells with mean values
+Working_Data_wr <- Working_Data %>%
+  mutate(ArrDelay_withoutNA = ifelse(is.na(ArrDelay), Missing_na[1], ArrDelay),
+         
+         DepDelay_withoutNA = ifelse(is.na(DepDelay), Missing_na[2], DepDelay),
+         
+         ArrTime_withoutNA = ifelse(is.na(ArrTime), Missing_na[3], ArrTime),
+         
+         DepTime_withoutNA =ifelse(is.na(DepTime), Missing_na[4], DepTime))
+
+View(Working_Data_wr)
+```
+
